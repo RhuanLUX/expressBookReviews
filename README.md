@@ -1,1 +1,2 @@
-# coding-project-template
+cd final_project
+npm start

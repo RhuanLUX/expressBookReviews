@@ -1,30 +1,25 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-let books = require("./booksdb.js");
-const regd_users = express.Router();
+const customers = express.Router();
 
-let users = [];
+let users = [
+  { username: "rhuanpablo", password: "strongpass123", fullName: "Rhuan Pablo", email: "rhuan@example.com" },
+  { username: "alicejones", password: "alicepwd", fullName: "Alice Jones", email: "alice.jones@example.com" },
+  { username: "bobjohnson", password: "bobjohnson456", fullName: "Bob Johnson", email: "bob.j@example.com" }
+];
 
-const isValid = (username)=>{ //returns boolean
-//write code to check is the username is valid
-}
+const authenticatedUser = (username, password) => {
+  return users.some(user => user.username === username && user.password === password);
+};
 
-const authenticatedUser = (username,password)=>{ //returns boolean
-//write code to check if username and password match the one we have in records.
-}
-
-//only registered users can login
-regd_users.post("/login", (req,res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+customers.post("/login", (req, res) => {
+  const { username, password } = req.body;
+  if (!authenticatedUser(username, password)) {
+    return res.status(401).json({ message: "Invalid username or password" });
+  }
+  const token = jwt.sign({ username }, "access_secret_key", { expiresIn: '1h' });
+  req.session.authorization = { token, username };
+  return res.status(200).json({ message: `Welcome back, ${username}!`, token });
 });
 
-// Add a book review
-regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
-});
-
-module.exports.authenticated = regd_users;
-module.exports.isValid = isValid;
-module.exports.users = users;
+module.exports.authenticated = customers;
